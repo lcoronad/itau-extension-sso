@@ -59,4 +59,11 @@ public class SignOnCustomerInfoType {
         this.signOnCustomerInfoRecord = value;
     }
 
+	@Override
+	public String toString() {
+		return "SignOnCustomerInfoType [signOnCustomerInfoRecord=" + signOnCustomerInfoRecord + "]";
+	}
+    
+    
+
 }

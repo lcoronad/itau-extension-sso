@@ -4,6 +4,7 @@ package com.itau.redhat.sso.services.schemas;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.itau.redhat.sso.commoncannonical.schemas.CustIdType;
@@ -32,11 +33,12 @@ import com.itau.redhat.sso.commoncannonical.schemas.HeaderRequestType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "doValidatePasswordRq", propOrder = {
+@XmlType(name = "ns2:doValidatePasswordRq", propOrder = {
     "headerRequest",
     "custId",
     "pswd"
 })
+@XmlRootElement(name = "doValidatePasswordRq")
 public class DoValidatePasswordRqType {
 
     @XmlElement(name = "HeaderRequest", required = true)

@@ -37,7 +37,7 @@ public class ValidatePasswordClient {
 		messageInfo.setOriginatorName(Constant.ORIGINATOR_NAME);
 		messageInfo.setOriginatorType(Constant.ORIGINATOR_TYPE);
 		messageInfo.setTerminalId(Util.getIpAdrress());
-
+		messageInfo.setSystemId("");
 		messageHeader.setMessageKey(messageKey);
 		messageHeader.setMessageInfo(messageInfo);
 

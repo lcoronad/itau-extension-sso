@@ -25,6 +25,8 @@ import org.keycloak.storage.ReadOnlyException;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 
+import com.itau.redhat.sso.commoncannonical.schemas.SignOnCustomerInfoRecordType;
+import com.itau.redhat.sso.commoncannonical.schemas.SignOnCustomerInfoType;
 import com.itau.redhat.sso.services.schemas.DoValidatePasswordRsType;
 import com.itau.redhat.sso.util.Constant;
 import com.itau.redhat.sso.util.ValidatePasswordClient;
@@ -120,6 +122,7 @@ public class ItauBaseDatosUserStorageProvider
 	public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
 		boolean userValid = false;
 		DoValidatePasswordRsType response = new DoValidatePasswordRsType();
+		SignOnCustomerInfoRecordType signOnDatosCliente = new SignOnCustomerInfoRecordType();
 
 		if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) {
 			return false;
@@ -138,24 +141,26 @@ public class ItauBaseDatosUserStorageProvider
 //	    	userValid = respuesta.equals( RESPUESTA_OK_CRYPTOUTILS );
 			String statusCode = "";
 			String serverStatusCode = "";
+			String serverSeverity = "";
 			response = ValidatePasswordClient.consumeWSValidatePassword(usuario, password);
 
 			statusCode = response.getHeaderResponse().getStatus().getStatusCode();
 			serverStatusCode = response.getHeaderResponse().getStatus().getServerStatusCode();
+			serverSeverity = response.getHeaderResponse().getStatus().getSeverity();
 			LOG.info("statusCode: " + statusCode);
 			LOG.info("serverStatusCode: " + serverStatusCode);
-			if (Constant.STATUS_CODE.equals(statusCode) && Constant.SERVER_STATUS_CODE.equals(serverStatusCode)) {
+			LOG.info("serverSeverity: " + serverSeverity);
+			if (Constant.STATUS_CODE.equals(statusCode) && Constant.SERVER_STATUS_CODE.equals(serverStatusCode) && Constant.SERVER_SEVERITY.equals(serverSeverity)) {
 				userValid = true;
+				signOnDatosCliente = response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord();
+				user.setFirstName(signOnDatosCliente.getCustName().getValue());
+				user.setLastName(signOnDatosCliente.getUserName().getValue());
+				user.setEmail(signOnDatosCliente.getEmailAddr().getValue());
+				user.setSingleAttribute("UserPermId", signOnDatosCliente.getUserPermId().getValue());	
+				user.setSingleAttribute("CustPermId", signOnDatosCliente.getCustPermId().getValue());
+				user.setSingleAttribute("UserIdType", signOnDatosCliente.getUserIdType().getValue());
+				user.setSingleAttribute("SessionId", signOnDatosCliente.getSessionId().getValue());
 				
-				user.setFirstName( response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getCustName().getValue() );
-				LOG.info("Valor obtenido: " + response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getCustName().getValue());
-				LOG.info("DTO completo : " + response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().toString());
-//				user.setLastName(map.get("lastName"));
-//				user.setEmail(map.get("email"));
-//				user.setAttribute("tipoId", datosTipoId);
-//				user.setAttribute("numId", datosNumId);
-//				user.setSingleAttribute("tipoId", tipoId);
-//				user.setSingleAttribute("numId", numId);
 			}
 			try {
 				LOG.info("userValid: " + userValid);
