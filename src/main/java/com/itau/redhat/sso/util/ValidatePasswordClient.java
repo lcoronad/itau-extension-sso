@@ -34,10 +34,11 @@ public class ValidatePasswordClient {
 		messageKey.setRequestUUID(Util.getUUID());
 
 		messageInfo.setDateTime(Util.getDateTime());
+		messageInfo.setSystemId("");
 		messageInfo.setOriginatorName(Constant.ORIGINATOR_NAME);
 		messageInfo.setOriginatorType(Constant.ORIGINATOR_TYPE);
 		messageInfo.setTerminalId(Util.getIpAdrress());
-
+			
 		messageHeader.setMessageKey(messageKey);
 		messageHeader.setMessageInfo(messageInfo);
 
