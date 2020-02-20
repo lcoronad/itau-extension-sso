@@ -17,7 +17,7 @@ import javax.xml.ws.Service;
  * 
  */
 @WebServiceClient(name = "validatePasswordBindingQSService", 
-                  wsdlLocation = "file:/D:/git-repo/Itaú/wsdl_firmas/ValidatePassword_soap.wsdl",
+                  wsdlLocation = "http://10.186.11.91:24200/services/security/ValidatePassword?wsdl",
                   targetNamespace = "http://itau.com.co/services/security/validatepassword/v1/definitions") 
 public class ValidatePasswordBindingQSService extends Service {
 
@@ -28,7 +28,7 @@ public class ValidatePasswordBindingQSService extends Service {
     static {
         URL url = null;
         try {
-            url = new URL("file:/D:/git-repo/Itaú/wsdl_firmas/ValidatePassword_soap.wsdl");
+            url = new URL("http://10.186.11.91:24200/services/security/ValidatePassword?wsdl");
         } catch (MalformedURLException e) {
             java.util.logging.Logger.getLogger(ValidatePasswordBindingQSService.class.getName())
                 .log(java.util.logging.Level.INFO, 
