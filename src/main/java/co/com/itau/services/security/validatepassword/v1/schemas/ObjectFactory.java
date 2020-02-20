@@ -1,5 +1,5 @@
 
-package com.itau.redhat.sso.services.schemas;
+package co.com.itau.services.security.validatepassword.v1.schemas;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;

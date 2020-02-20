@@ -42,7 +42,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class StatusType {
 
-    protected String statusCode;
+    protected long statusCode;
     protected String serverStatusCode;
     @XmlElement(required = true)
     protected String severity;
@@ -54,7 +54,7 @@ public class StatusType {
      * Obtiene el valor de la propiedad statusCode.
      * 
      */
-    public String getStatusCode() {
+    public long getStatusCode() {
         return statusCode;
     }
 
@@ -62,7 +62,7 @@ public class StatusType {
      * Define el valor de la propiedad statusCode.
      * 
      */
-    public void setStatusCode(String value) {
+    public void setStatusCode(long value) {
         this.statusCode = value;
     }
 

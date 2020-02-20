@@ -4,7 +4,6 @@ package com.itau.redhat.sso.commoncannonical.schemas;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -51,7 +50,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 public class MessageInfoType {
 
     @XmlElement(required = true)
-    @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar dateTime;
     @XmlElement(required = true)
     protected String systemId;

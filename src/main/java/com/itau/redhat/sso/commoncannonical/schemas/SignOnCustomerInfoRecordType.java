@@ -677,21 +677,4 @@ public class SignOnCustomerInfoRecordType {
         this.phone = value;
     }
 
-	@Override
-	public String toString() {
-		return "SignOnCustomerInfoRecordType [signOnCustomerInfoRecord=" + signOnCustomerInfoRecord
-				+ ", getSummaryFlag=" + getSummaryFlag + ", changePwdFlag=" + changePwdFlag + ", sessionId=" + sessionId
-				+ ", userType=" + userType + ", bankIdType=" + bankIdType + ", userIdType=" + userIdType
-				+ ", userPermId=" + userPermId + ", userName=" + userName + ", companyAdminRole=" + companyAdminRole
-				+ ", language=" + language + ", custIdType=" + custIdType + ", custPermId=" + custPermId
-				+ ", trxPswFlag=" + trxPswFlag + ", lastLogonDt=" + lastLogonDt + ", custName=" + custName
-				+ ", contractSignFlag=" + contractSignFlag + ", signOnCustCostCenterId=" + signOnCustCostCenterId
-				+ ", daysToPwdChange=" + daysToPwdChange + ", daysToPwdTxChange=" + daysToPwdTxChange + ", emailAddr="
-				+ emailAddr + ", signOnMasivePwdChangeFlag=" + signOnMasivePwdChangeFlag + ", phone=" + phone + "]";
-	}
-    
-    
-    
-    
-
 }

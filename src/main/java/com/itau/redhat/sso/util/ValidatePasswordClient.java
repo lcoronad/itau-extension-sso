@@ -3,6 +3,7 @@ package com.itau.redhat.sso.util;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXB;
+import javax.xml.ws.BindingProvider;
 
 import org.apache.log4j.Logger;
 
@@ -11,9 +12,12 @@ import com.itau.redhat.sso.commoncannonical.schemas.HeaderRequestType;
 import com.itau.redhat.sso.commoncannonical.schemas.MessageHeaderType;
 import com.itau.redhat.sso.commoncannonical.schemas.MessageInfoType;
 import com.itau.redhat.sso.commoncannonical.schemas.MessageKeyType;
-import com.itau.redhat.sso.services.definitions.ValidatePasswordBindingQSService;
-import com.itau.redhat.sso.services.schemas.DoValidatePasswordRqType;
-import com.itau.redhat.sso.services.schemas.DoValidatePasswordRsType;
+
+import co.com.itau.services.security.validatepassword.v1.definitions.ValidatePasswordBindingQSService;
+import co.com.itau.services.security.validatepassword.v1.definitions.ValidatePasswordPortType;
+import co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePasswordRqType;
+import co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePasswordRsType;
+
 
 public class ValidatePasswordClient {
 
@@ -38,7 +42,7 @@ public class ValidatePasswordClient {
 		messageInfo.setOriginatorName(Constant.ORIGINATOR_NAME);
 		messageInfo.setOriginatorType(Constant.ORIGINATOR_TYPE);
 		messageInfo.setTerminalId(Util.getIpAdrress());
-			
+		messageInfo.setSystemId("");
 		messageHeader.setMessageKey(messageKey);
 		messageHeader.setMessageInfo(messageInfo);
 
@@ -52,10 +56,18 @@ public class ValidatePasswordClient {
 
 		try {			
 			LOG.info("Consumiendo WS OSB ValidatePassword, request: " + Util.convertDtoToXmlString(request));
-			response = service.getValidatePasswordBindingQSPort().doValidatePassword(request);
+			
+			ValidatePasswordPortType port = service.getValidatePasswordBindingQSPort();
+			
+			String endpointURL = "http://10.186.11.91:24200/services/security/ValidatePassword";
+			BindingProvider bp = (BindingProvider) port;
+			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointURL);
+			
+			response = port.doValidatePassword(request);
+			
 			LOG.info("Web Service consumido exitosamente, response: "+ Util.convertDtoToXmlString(response));
 		} catch (Exception e) {
-			LOG.error("Error consumiendo Web Service ValidatePassword: " + e.toString());
+			LOG.error("Error consumiendo Web Service ValidatePassword: " , e);
 		}
 		return response;
 	}

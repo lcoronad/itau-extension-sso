@@ -1,5 +1,5 @@
 
-package com.itau.redhat.sso.services.schemas;
+package co.com.itau.services.security.validatepassword.v1.schemas;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -32,7 +32,7 @@ import com.itau.redhat.sso.commoncannonical.schemas.HeaderRequestType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "doValidatePasswordRq", propOrder = {
+@XmlType(name = "doValidatePasswordRq_Type", propOrder = {
     "headerRequest",
     "custId",
     "pswd"
