@@ -115,7 +115,7 @@ public class ItauBaseDatosUserStorageProvider
 	 * 
 	 */
 	public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
-		boolean userValid = true;
+		boolean userValid = false;
 		DoValidatePasswordRsType response = new DoValidatePasswordRsType();
 		if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) {
 			return false;

@@ -40,25 +40,10 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 
 	@Override
 	public String getFirstAttribute(String name) {
-		if (name.equals("typeId")) {
-			String typeId = "1";
-
-			System.out.println("Entro a typeId de getFirstAttribute");
-
-			return typeId;
-		}
-		if (name.equals("FIRST_NAME")) {
-			String typeId = "Mi primer nombre";
-
-			System.out.println("Entro a FIRST_NAME de getFirstAttribute");
-
-			return typeId;
-		} else if (name.equals("numId")) {
-			String numId = "12111";
-
-			System.out.println("Entro a numId de getFirstAttribute");
-
-			return numId;
+		if (name.equals("type_id")) {
+			return this.getTypeId();
+		} else if (name.equals("num_id")) {
+			return this.getNumId();
 		}
 
 		System.out.println("Entro a getFirstAttribute " + name);
@@ -102,11 +87,11 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 		List<String> typeId = new ArrayList<String>();
 		List<String> numId = new ArrayList<String>();
 
-		typeId.add("1");
-		numId.add("12111");
+		typeId.add(this.getTypeId());
+		numId.add(this.getNumId());
 
-		atributos.put("numId", numId);
-		atributos.put("typeId", typeId);
+		atributos.put("num_id", numId);
+		atributos.put("type_id", typeId);
 
 		System.out.println("Entro getAttributes");
 
@@ -122,9 +107,6 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 	}
 
 	public String getNumId() {
-
-		System.out.println("Entro a getNumId");
-
 		return numId;
 	}
 
