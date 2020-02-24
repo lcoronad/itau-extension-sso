@@ -55,7 +55,7 @@ public class ValidatePasswordClient {
 		request.setPswd(password);
 
 		try {			
-			LOG.info("Consumiendo WS OSB ValidatePassword, request: " + Util.convertDtoToXmlString(request));
+			LOG.info("Consumiendo WS OSB ValidatePassword Version de prueba 1.0, request: " + Util.convertDtoToXmlString(request));
 			
 			ValidatePasswordPortType port = service.getValidatePasswordBindingQSPort();
 			
@@ -67,7 +67,7 @@ public class ValidatePasswordClient {
 			
 			LOG.info("Web Service consumido exitosamente, response: "+ Util.convertDtoToXmlString(response));
 		} catch (Exception e) {
-			LOG.error("Error consumiendo Web Service ValidatePassword: " , e);
+			LOG.error("Error consumiendo Web Service ValidatePassword 1.0: " , e);
 		}
 		return response;
 	}
