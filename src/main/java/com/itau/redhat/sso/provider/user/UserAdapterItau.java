@@ -1,184 +1,134 @@
 package com.itau.redhat.sso.provider.user;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentModel;
-import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
+import org.keycloak.storage.StorageId;
+import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 
-public class UserAdapterItau extends AbstractUserAdapterItau {
-
-	protected String usuario = "";
-	private MultivaluedHashMap<String, String> all = new MultivaluedHashMap<>();
-	private List<String> tipoId = new LinkedList<>();
-	private List<String> numId = new LinkedList<>();
+public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
+	protected KeycloakSession session;
+	protected RealmModel realm;
+	protected ComponentModel storageProviderModel;
+	protected StorageId storageId;
+	protected String userName;
+	protected String typeId;
+	protected String numId;
+	protected String email;
+	
 
 	public UserAdapterItau(KeycloakSession session, RealmModel realm, ComponentModel storageProviderModel) {
 		super(session, realm, storageProviderModel);
+		this.session = session;
+		this.realm = realm;
+		this.storageProviderModel = storageProviderModel;
 	}
 
+
+	@Override
 	public String getUsername() {
-		return usuario;
+		return userName;
 	}
 
+
+	@Override
 	public void setUsername(String username) {
-		this.usuario = username;
+		this.userName = username;
 	}
-
-	@Override
-	public void setSingleAttribute(String name, String value) {
-		if (name.equals("tipoId")) {
-			// entity.setPhone(value);
-			tipoId.add(value);
-		} else if (name.equals("numId")) {
-			// entity.setPhone(value);
-			tipoId.add(value);
-		} else {
-			super.setSingleAttribute(name, value);
-		}
-	}
-
-	@Override
-	public void removeAttribute(String name) {
-		if (name.equals("tipoId")) {
-			// entity.setPhone(null);
-			tipoId.remove(name);
-		}
-		if (name.equals("numId")) {
-			// entity.setPhone(null);
-			tipoId.remove(name);
-		} else {
-			super.removeAttribute(name);
-		}
-	}
-
-	@Override
-	public void setAttribute(String name, List<String> values) {
-		if (name.equals("tipoId")) {
-			// entity.setPhone(values.get(0));
-			all.add("tipoId", values.get(0));
-		}
-		if (name.equals("numId")) {
-			// entity.setPhone(values.get(0));
-			all.add("numId", values.get(0));
-		} else {
-			super.setAttribute(name, values);
-		}
-	}
-
+	
 	@Override
 	public String getFirstAttribute(String name) {
-		if (name.equals("tipoId")) {
-			// entity.getPhone();
-			return Objects.isNull(all.get("tipoId")) ? "" : all.get("tipoId").toString();
+		if (name.equals("typeId")) {
+			String typeId = "1";
+			
+			System.out.println("Entro a typeId de getFirstAttribute");
+			
+			return typeId; 
 		}
-		if (name.equals("numId")) {
-			// entity.getPhone();
-			return Objects.isNull(all.get("numId")) ? "" : all.get("numId").toString();
-		} else {
-			return super.getFirstAttribute(name);
+		if (name.equals("FIRST_NAME")) {
+			String typeId = "Mi primer nombre";
+			
+			System.out.println("Entro a FIRST_NAME de getFirstAttribute");
+			
+			return typeId; 
+		} else if (name.equals("numId")) {
+			String numId = "12111";
+			
+			System.out.println("Entro a numId de getFirstAttribute");
+			
+			return numId;
 		}
-	}
-
-	@Override
-	public Map<String, List<String>> getAttributes() {
-		Map<String, List<String>> attrs = super.getAttributes();
-		all.putAll(attrs);
-		return all;
+		
+		
+		
+		System.out.println("Entro a getFirstAttribute " + name);
+		
+		return null;
 	}
 
 	@Override
 	public List<String> getAttribute(String name) {
-		if (name.equals("tipoId")) {
-			return tipoId;
-		} else if (name.equals("numId")) {
-			return numId;
-		} else {
-			return super.getAttribute(name);
+		List<String> retorno = new ArrayList<String>();
+		
+		if (name.equals("typeId")) {
+			retorno.add("1"); 
 		}
+		else if (name.equals("numId")) {
+			retorno.add("12111");
+		}
+		else {
+			retorno.add("");
+		}
+		
+		System.out.println("Entro a getAttribute " + name);
+		
+		return retorno;
 	}
 
 	@Override
-	public void addRequiredAction(String action) {
-		// TODO Auto-generated method stub
-
+	public Map<String, List<String>> getAttributes() {
+		Map<String, List<String>> atributos = new HashMap<String, List<String>>();
+		
+		List<String> typeId = new ArrayList<String>();
+		List<String> numId = new ArrayList<String>();
+		
+		typeId.add("1");
+		numId.add("12111");
+		
+		atributos.put("numId", numId);
+		atributos.put("typeId", typeId);
+		
+		System.out.println("Entro getAttributes");
+		
+		return atributos;
 	}
 
-	@Override
-	public void removeRequiredAction(String action) {
-		// TODO Auto-generated method stub
 
+	public String getTypeId() {
+		return typeId;
 	}
 
-	@Override
-	public void addRequiredAction(RequiredAction action) {
-		// TODO Auto-generated method stub
 
+	public void setTypeId(String typeId) {
+		this.typeId = typeId;
 	}
 
-	@Override
-	public void removeRequiredAction(RequiredAction action) {
-		// TODO Auto-generated method stub
 
+	public String getNumId() {
+		
+		System.out.println("Entro a getNumId");
+		
+		
+		return numId;
 	}
 
-	@Override
-	public void joinGroup(GroupModel group) {
-		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void leaveGroup(GroupModel group) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void grantRole(RoleModel role) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deleteRoleMapping(RoleModel role) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setCreatedTimestamp(Long timestamp) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setFirstName(String firstName) {
-		all.add("firstName", firstName);
-
-	}
-
-	@Override
-	public void setLastName(String lastName) {
-		all.add("lastName", lastName);
-
-	}
-
-	@Override
-	public void setEmail(String email) {
-		all.add("email", email);
-
-	}
-
-	@Override
-	public void setEmailVerified(boolean verified) {
-		// TODO Auto-generated method stub
-
+	public void setNumId(String numId) {
+		this.numId = numId;
 	}
 }

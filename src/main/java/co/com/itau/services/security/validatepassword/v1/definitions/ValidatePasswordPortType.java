@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 public interface ValidatePasswordPortType {
 
-    @WebMethod(action = "doValidatePassword")
+    @WebMethod(action = "")
     @WebResult(name = "doValidatePasswordRs", targetNamespace = "http://itau.com.co/services/security/validatepassword/v1/schemas", partName = "Response")
     public co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePasswordRsType doValidatePassword(
         @WebParam(partName = "Request", name = "doValidatePasswordRq", targetNamespace = "http://itau.com.co/services/security/validatepassword/v1/schemas")
