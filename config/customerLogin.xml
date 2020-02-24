@@ -1,0 +1,66 @@
+<!-- Request -->
+<!--url--> http://10.186.11.91:24200/services/security/CustomerLogin?wsdl
+<soapenv:Envelope 	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+	<soap:Header 	xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	</soap:Header>
+	<soapenv:Body>
+		<ns2:getCustomerLoginRq 	xmlns:log="http://itau.com.co/services/common/auditory/v2/schemas" xmlns="http://itau.com.co/commoncannonical/v2/schemas" xmlns:ns2="http://itau.com.co/services/security/customerlogin/v1/schemas">
+			<ns2:HeaderRequest>
+				<MessageHeader>
+					<MessageKey>
+						<requestUUID>b90517da-e386-4831-b064-79e1d24b59a8</requestUUID>
+					</MessageKey>
+					<MessageInfo>
+						<dateTime>2020-02-21T19:03:13.117Z</dateTime>
+						<systemId>APP Unica</systemId>
+						<originatorName>APP Unica</originatorName>
+						<originatorType>141</originatorType>
+						<terminalId>172.22.74.34</terminalId>
+					</MessageInfo>
+				</MessageHeader>
+				<User>
+					<userName>74f8b33c2e0c81adb8afde1b8f546fd0</userName>
+				</User>
+			</ns2:HeaderRequest>
+		</ns2:getCustomerLoginRq>
+	</soapenv:Body>
+</soapenv:Envelope>
+
+
+<!-- Response -->
+<soapenv:Envelope 	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+	<Header 	xmlns="http://schemas.xmlsoap.org/soap/envelope/"/>
+	<Body 	xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+		<ns2:getCustomerLoginRs 	xmlns:ns2="http://itau.com.co/services/security/customerlogin/v1/schemas">
+			<ns2:HeaderResponse>
+				<sch:MessageHeader 	xmlns:sch="http://itau.com.co/commoncannonical/v2/schemas">
+					<sch:MessageKey>
+						<sch:requestUUID>b90517da-e386-4831-b064-79e1d24b59a8</sch:requestUUID>
+					</sch:MessageKey>
+					<sch:MessageInfo>
+						<sch:dateTime>2020-02-21T19:03:13.117Z</sch:dateTime>
+						<sch:systemId>APP Unica</sch:systemId>
+						<sch:originatorName>APP Unica</sch:originatorName>
+						<sch:originatorType>141</sch:originatorType>
+						<sch:terminalId>172.22.74.34</sch:terminalId>
+					</sch:MessageInfo>
+					<sch:TrnInfoList>
+						<sch:TrnInfo>
+							<sch:trnCode/>
+							<sch:trnSrc>0018</sch:trnSrc>
+						</sch:TrnInfo>
+					</sch:TrnInfoList>
+				</sch:MessageHeader>
+				<sch:Status 	xmlns:sch="http://itau.com.co/commoncannonical/v2/schemas">
+					<sch:statusCode>000</sch:statusCode>
+					<sch:serverStatusCode>0</sch:serverStatusCode>
+					<sch:severity>Info</sch:severity>
+					<sch:statusDesc>Transaccion exitosa</sch:statusDesc>
+				</sch:Status>
+			</ns2:HeaderResponse>
+			<ns2:custLoginId>U373834_373834</ns2:custLoginId>
+			<ns2:custPermId>373834</ns2:custPermId>
+			<ns2:custType>2</ns2:custType>
+		</ns2:getCustomerLoginRs>
+	</Body>
+</soapenv:Envelope>
