@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -26,7 +25,6 @@ import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 
 import com.itau.redhat.sso.commoncannonical.schemas.SignOnCustomerInfoRecordType;
-import com.itau.redhat.sso.commoncannonical.schemas.SignOnCustomerInfoType;
 import com.itau.redhat.sso.util.Constant;
 import com.itau.redhat.sso.util.ValidatePasswordClient;
 
@@ -44,10 +42,6 @@ import co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePassw
  */
 public class ItauBaseDatosUserStorageProvider
 		implements UserStorageProvider, UserLookupProvider, CredentialInputValidator, CredentialInputUpdater {
-
-	private static String SECURITY_CHANNELLOGINPN_IPCRYPTO = "boinfspt1";
-	private static String SECURITY_CHANNELLOGINPN_PORTCRYPTO = "23456";
-	private static String RESPUESTA_OK_CRYPTOUTILS = "S|Login Correct";
 
 	protected KeycloakSession session;
 	protected ComponentModel model;
@@ -84,30 +78,32 @@ public class ItauBaseDatosUserStorageProvider
 	public UserModel getUserByUsername(String username, RealmModel realm) {
 		LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Usuario: " + username);
 		UserModel adapter = loadedUsers.get(username);
-		if (adapter == null) {
+		if ("U66858679_66858679".equalsIgnoreCase(username)) {
+
 			// Se crea el modelo de usuario consultando un Store procedure
 			adapter = createAdapter(realm, username);
 			loadedUsers.put(username, adapter);
 			LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Encontro adapter");
 		}
-
+		
 		return adapter;
 	}
 
-	protected UserModel createAdapter(RealmModel realm, String username) {
+	protected UserAdapterItau createAdapter(RealmModel realm, String username) {
 		LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername creando adapter");
+		
 		UserAdapterItau userAdapterItau = new UserAdapterItau(session, realm, model);
-		userAdapterItau = this.getUserItau(userAdapterItau, username);
-		return userAdapterItau;
-	}
-
-	protected UserAdapterItau getUserItau(UserAdapterItau userAdapterItau, String username) {
-		// TODO: Llamar a SP de Sybase
-		// TODO: Llenar los demás datos del cliente
 		userAdapterItau.setUsername(username);
+		userAdapterItau.setSingleAttribute("type_id", "1");
+		userAdapterItau.setSingleAttribute("num_id", "748596");
+		userAdapterItau.setEmail("pruebaasdasd@asdasd.com");
+		userAdapterItau.setEmailVerified(true);
+		userAdapterItau.setTypeId("1");
+		userAdapterItau.setNumId("11111");
+		
 		return userAdapterItau;
 	}
-
+	
 	public boolean supportsCredentialType(String credentialType) {
 		return credentialType.equals(CredentialModel.PASSWORD);
 	}
@@ -130,8 +126,11 @@ public class ItauBaseDatosUserStorageProvider
 		}
 
 		UserCredentialModel cred = (UserCredentialModel) input;
+
 		String usuario = user.getUsername();
-		String password = cred.getValue();		
+		String password = cred.getValue();
+
+		UserModel userAdapterItau = this.getUserByUsername(usuario, realm);
 
 		LOG.info("ItauBaseDatosUserStorageProvider.isValid Usuario que llego: " + usuario);
 		LOG.info("ItauBaseDatosUserStorageProvider.isValid Password que llego: " + password);
@@ -143,6 +142,7 @@ public class ItauBaseDatosUserStorageProvider
 			Long statusCode = 0L;
 			String serverStatusCode = "";
 			String serverSeverity = "";
+
 			response = ValidatePasswordClient.consumeWSValidatePassword(usuario, password);
 
 			statusCode = response.getHeaderResponse().getStatus().getStatusCode();
@@ -151,23 +151,27 @@ public class ItauBaseDatosUserStorageProvider
 			LOG.info("statusCode: " + statusCode);
 			LOG.info("serverStatusCode: " + serverStatusCode);
 			LOG.info("serverSeverity: " + serverSeverity);
-			if (Constant.STATUS_CODE.equals(statusCode) && Constant.SERVER_STATUS_CODE.equals(serverStatusCode) && Constant.SERVER_SEVERITY.equals(serverSeverity)) {
+			if (Constant.STATUS_CODE.equals(statusCode.toString())
+					&& Constant.SERVER_STATUS_CODE.equals(serverStatusCode)
+					&& Constant.SERVER_SEVERITY.equals(serverSeverity)) {
 				userValid = true;
 				signOnDatosCliente = response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord();
-				user.setFirstName(signOnDatosCliente.getCustName().getValue());
-				user.setLastName(signOnDatosCliente.getUserName().getValue());
-				user.setEmail(signOnDatosCliente.getEmailAddr().getValue());
-				user.setSingleAttribute("UserPermId", signOnDatosCliente.getUserPermId().getValue());	
-				user.setSingleAttribute("CustPermId", signOnDatosCliente.getCustPermId().getValue());
-				user.setSingleAttribute("UserIdType", signOnDatosCliente.getUserIdType().getValue());
-				user.setSingleAttribute("SessionId", signOnDatosCliente.getSessionId().getValue());
-				
+
+				userAdapterItau.setFirstName(signOnDatosCliente.getCustName().getValue());
+				userAdapterItau.setLastName(signOnDatosCliente.getUserName().getValue());
+				userAdapterItau.setEmail(signOnDatosCliente.getEmailAddr().getValue());
+				userAdapterItau.setSingleAttribute("type_id", signOnDatosCliente.getCustIdType().getValue());
+				userAdapterItau.setSingleAttribute("num_id", signOnDatosCliente.getCustPermId().getValue());
+				userAdapterItau.setSingleAttribute("UserIdType", signOnDatosCliente.getUserIdType().getValue());
+				userAdapterItau.setSingleAttribute("SessionId", signOnDatosCliente.getSessionId().getValue());
+
+				loadedUsers.put(usuario, userAdapterItau);
 			}
 			try {
 				LOG.info("userValid: " + userValid);
-				LOG.info("Obteniendo Datos del Usuario");
-				setCustomerData(response);
-				createAdapter(realm, usuario);
+				// LOG.info("Obteniendo Datos del Usuario");
+				// setCustomerData(response);
+				// createAdapter(realm, usuario);
 			} catch (Exception e) {
 				LOG.error("Error obteniendo datos del usuario");
 			}

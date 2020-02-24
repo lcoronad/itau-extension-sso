@@ -1,10 +1,14 @@
 package com.itau.redhat.sso.provider.user;
 
+import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.ws.BindingProvider;
 
@@ -14,12 +18,16 @@ import com.itau.redhat.sso.commoncannonical.schemas.MessageHeaderType;
 import com.itau.redhat.sso.commoncannonical.schemas.MessageInfoType;
 import com.itau.redhat.sso.commoncannonical.schemas.MessageKeyType;
 import com.itau.redhat.sso.commoncannonical.schemas.SignOnCustomerInfoType;
+import com.itau.redhat.sso.util.ClientHTTP;
 import com.itau.redhat.sso.util.Util;
 
 import co.com.itau.services.security.validatepassword.v1.definitions.ValidatePasswordBindingQSService;
 import co.com.itau.services.security.validatepassword.v1.definitions.ValidatePasswordPortType;
+import co.com.itau.services.security.validatepassword.v1.schemas.Body;
 import co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePasswordRqType;
 import co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePasswordRsType;
+import co.com.itau.services.security.validatepassword.v1.schemas.Envelope;
+import co.com.itau.services.security.validatepassword.v1.schemas.EnvelopeRS;
 
 public class TestCryptoChannelTools {
 
@@ -65,22 +73,36 @@ public class TestCryptoChannelTools {
 						
 			request.setCustId(custIdType);
 			request.setPswd("Z53116596411533925435017819501166859346835089761847192521436625998716711342758l5499715286320399458504537550587554601402830205729707226869853281556880743267");
-			StringWriter sw = new StringWriter();
-			JAXB.marshal(request, sw);
-			String xml = sw.toString();
-			System.out.println(xml);
+			
 			ValidatePasswordPortType port = service.getValidatePasswordBindingQSPort();
 			
 			String endpointURL = "http://10.186.11.91:24200/services/security/ValidatePassword";
 			BindingProvider bp = (BindingProvider) port;
 			bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointURL);
-			
-			DoValidatePasswordRsType response = port.doValidatePassword(request);			
-			System.out.println("Status CODE: " + response.getHeaderResponse().getStatus().getStatusCode());
-			SignOnCustomerInfoType datosResponse = new SignOnCustomerInfoType();
-			datosResponse = response.getSignOnCustomerInfo().getValue();
-			System.out.println("Datos response: " + response.getHeaderResponse().getStatus().getStatusDesc());
-			System.out.println("Datos cliente: " + datosResponse.getSignOnCustomerInfoRecord().getCustName().getValue());
+			Envelope env = new Envelope();
+			env.setHeaders("");
+			Body body = new Body();
+			body.setDoValidatePasswordRqType(request);
+			env.setBody(body);
+			StringWriter sw = new StringWriter();
+			JAXB.marshal(env, sw);
+			String xml = sw.toString();
+			System.out.println(xml);
+			String xmlT = ClientHTTP.consumeService(xml);
+			System.out.println("Response XML Data: " + xmlT);
+			DoValidatePasswordRsType doValidatePasswordRsType = new DoValidatePasswordRsType();
+			JAXBContext jaxbContext = JAXBContext.newInstance(EnvelopeRS.class);
+			Unmarshaller um = jaxbContext.createUnmarshaller();
+			um.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
+			EnvelopeRS envRs =(EnvelopeRS) um.unmarshal(new ByteArrayInputStream(xmlT.getBytes(StandardCharsets.UTF_8)));
+			System.out.println(envRs.getBody().getDoValidatePasswordRsType().getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getCustName().getValue());
+//			System.out.println(doValidatePasswordRsType.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getUserName().getValue());
+//			DoValidatePasswordRsType response = port.doValidatePassword(request);			
+//			System.out.println("Status CODE: " + response.getHeaderResponse().getStatus().getStatusCode());
+//			SignOnCustomerInfoType datosResponse = new SignOnCustomerInfoType();
+//			datosResponse = response.getSignOnCustomerInfo().getValue();
+//			System.out.println("Datos response: " + response.getHeaderResponse().getStatus().getStatusDesc());
+//			System.out.println("Datos cliente: " + datosResponse.getSignOnCustomerInfoRecord().getCustName().getValue());
 		} catch (Exception e) {
 			System.out.println("El error es: " + e.toString());
 		}
