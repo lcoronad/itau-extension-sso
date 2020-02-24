@@ -6,11 +6,20 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "Envelope", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
 @XmlType(name = "Envelope", propOrder = { "headers", "body" })
-public class EnvelopeRS {
-
+public class EnvelopeRCL {
+	
 	private String headers;
+	
+	private BodyRCL body;
+	
+	@XmlElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+	public BodyRCL getBody() {
+		return body;
+	}
 
-	private BodyRS body;
+	public void setBody(BodyRCL body) {
+		this.body = body;
+	}
 
 	@XmlElement(name = "Header", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
 	public String getHeaders() {
@@ -19,15 +28,6 @@ public class EnvelopeRS {
 
 	public void setHeaders(String headers) {
 		this.headers = headers;
-	}
-
-	@XmlElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
-	public BodyRS getBody() {
-		return body;
-	}
-
-	public void setBody(BodyRS body) {
-		this.body = body;
 	}
 
 }

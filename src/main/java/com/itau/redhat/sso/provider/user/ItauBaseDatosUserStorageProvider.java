@@ -3,10 +3,8 @@
  */
 package com.itau.redhat.sso.provider.user;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,11 +22,12 @@ import org.keycloak.storage.ReadOnlyException;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 
-import com.itau.redhat.sso.commoncannonical.schemas.SignOnCustomerInfoRecordType;
 import com.itau.redhat.sso.util.Constant;
+import com.itau.redhat.sso.util.Util;
 import com.itau.redhat.sso.util.ValidatePasswordClient;
 
 import co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePasswordRsType;
+import co.com.itau.services.security.validatepassword.v1.schemas.GetCustomerLoginRs;
 
 /**
  * Clase que permite realizar el login por medio de username y clave
@@ -47,11 +46,7 @@ public class ItauBaseDatosUserStorageProvider
 	protected ComponentModel model;
 	// map of loaded users in this transaction
 	protected Map<String, UserModel> loadedUsers = new HashMap<String, UserModel>();
-	private List<String> datosTipoId = new ArrayList<String>();
-	private List<String> datosNumId = new ArrayList<String>();
-	private Map<String, String> map = new HashMap<>();
-	private String tipoId = "";
-	private String numId = "";
+
 
 	private Logger LOG = Logger.getLogger(ItauBaseDatosUserStorageProvider.class);
 
@@ -78,32 +73,35 @@ public class ItauBaseDatosUserStorageProvider
 	public UserModel getUserByUsername(String username, RealmModel realm) {
 		LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Usuario: " + username);
 		UserModel adapter = loadedUsers.get(username);
-		if ("U66858679_66858679".equalsIgnoreCase(username)) {
+		if (adapter == null) {
 
-			// Se crea el modelo de usuario consultando un Store procedure
-			adapter = createAdapter(realm, username);
-			loadedUsers.put(username, adapter);
-			LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Encontro adapter");
+			try {
+				String userMD5 = Util.getHashMD5(username.toUpperCase());
+				GetCustomerLoginRs getCustomerLoginRs = ValidatePasswordClient.consumeWScustomerLogin(userMD5);
+				LOG.info("Valores encontrados statuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode());
+				LOG.info("Valores encontrados serverstatuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode().toString());
+				if (!(Constant.STATUS_CODE.equals(String.valueOf(getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode()))
+						&& Constant.SERVER_STATUS_CODE_LOGIN
+								.equals(getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode()))) {
+					return adapter;
+				}
+
+				adapter = new UserAdapterItau(session, realm, model);
+				adapter.setUsername(getCustomerLoginRs.getCustLoginId());
+				adapter.setSingleAttribute("type_id", getCustomerLoginRs.getCustType());
+				adapter.setSingleAttribute("num_id", getCustomerLoginRs.getCustPermId());
+				
+				loadedUsers.put(username, adapter);
+				LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Encontro adapter");
+
+			} catch (Exception e) {
+				LOG.error("Error el MD5", e);
+			}
 		}
-		
+
 		return adapter;
 	}
 
-	protected UserAdapterItau createAdapter(RealmModel realm, String username) {
-		LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername creando adapter");
-		
-		UserAdapterItau userAdapterItau = new UserAdapterItau(session, realm, model);
-		userAdapterItau.setUsername(username);
-		userAdapterItau.setSingleAttribute("type_id", "1");
-		userAdapterItau.setSingleAttribute("num_id", "748596");
-		userAdapterItau.setEmail("pruebaasdasd@asdasd.com");
-		userAdapterItau.setEmailVerified(true);
-		userAdapterItau.setTypeId("1");
-		userAdapterItau.setNumId("11111");
-		
-		return userAdapterItau;
-	}
-	
 	public boolean supportsCredentialType(String credentialType) {
 		return credentialType.equals(CredentialModel.PASSWORD);
 	}
@@ -117,10 +115,8 @@ public class ItauBaseDatosUserStorageProvider
 	 * 
 	 */
 	public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
-		boolean userValid = false;
+		boolean userValid = true;
 		DoValidatePasswordRsType response = new DoValidatePasswordRsType();
-		SignOnCustomerInfoRecordType signOnDatosCliente = new SignOnCustomerInfoRecordType();
-
 		if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) {
 			return false;
 		}
@@ -130,7 +126,7 @@ public class ItauBaseDatosUserStorageProvider
 		String usuario = user.getUsername();
 		String password = cred.getValue();
 
-		UserModel userAdapterItau = this.getUserByUsername(usuario, realm);
+		
 
 		LOG.info("ItauBaseDatosUserStorageProvider.isValid Usuario que llego: " + usuario);
 		LOG.info("ItauBaseDatosUserStorageProvider.isValid Password que llego: " + password);
@@ -155,17 +151,7 @@ public class ItauBaseDatosUserStorageProvider
 					&& Constant.SERVER_STATUS_CODE.equals(serverStatusCode)
 					&& Constant.SERVER_SEVERITY.equals(serverSeverity)) {
 				userValid = true;
-				signOnDatosCliente = response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord();
 
-				userAdapterItau.setFirstName(signOnDatosCliente.getCustName().getValue());
-				userAdapterItau.setLastName(signOnDatosCliente.getUserName().getValue());
-				userAdapterItau.setEmail(signOnDatosCliente.getEmailAddr().getValue());
-				userAdapterItau.setSingleAttribute("type_id", signOnDatosCliente.getCustIdType().getValue());
-				userAdapterItau.setSingleAttribute("num_id", signOnDatosCliente.getCustPermId().getValue());
-				userAdapterItau.setSingleAttribute("UserIdType", signOnDatosCliente.getUserIdType().getValue());
-				userAdapterItau.setSingleAttribute("SessionId", signOnDatosCliente.getSessionId().getValue());
-
-				loadedUsers.put(usuario, userAdapterItau);
 			}
 			try {
 				LOG.info("userValid: " + userValid);
@@ -184,21 +170,7 @@ public class ItauBaseDatosUserStorageProvider
 		return userValid;
 	}
 
-	private void setCustomerData(DoValidatePasswordRsType response) {
-		tipoId = response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getCustIdType().getValue();
-		numId = response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getCustPermId().getValue();
-		LOG.info("tipoId: " + tipoId);
-		LOG.info("numId: " + numId);
-		datosTipoId.add(tipoId);
-		datosNumId.add(numId);
-		map.put("firstName",
-				response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getUserName().getValue());
-		map.put("lastName",
-				response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getCustName().getValue());
-		map.put("email",
-				response.getSignOnCustomerInfo().getValue().getSignOnCustomerInfoRecord().getEmailAddr().getValue());
 
-	}
 
 	public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
 		if (input.getType().equals(CredentialModel.PASSWORD)) {

@@ -11,11 +11,11 @@ import java.nio.charset.StandardCharsets;
 
 public class ClientHTTP {
 
-	public static String consumeService(String xml) throws IOException {
+	public static String consumeService(String xml,String urlInput) throws IOException {
 		StringBuilder sbBuilder = new StringBuilder();
 		try {
 			System.out.println(xml);
-			URL url = new URL("http://10.186.11.91:24200/services/security/ValidatePassword");
+			URL url = new URL(urlInput);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Accept", "application/xml");

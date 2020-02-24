@@ -88,7 +88,7 @@ public class TestCryptoChannelTools {
 			JAXB.marshal(env, sw);
 			String xml = sw.toString();
 			System.out.println(xml);
-			String xmlT = ClientHTTP.consumeService(xml);
+			String xmlT = ClientHTTP.consumeService(xml,"http://10.186.11.91:24200/services/security/ValidatePassword");
 			System.out.println("Response XML Data: " + xmlT);
 			DoValidatePasswordRsType doValidatePasswordRsType = new DoValidatePasswordRsType();
 			JAXBContext jaxbContext = JAXBContext.newInstance(EnvelopeRS.class);

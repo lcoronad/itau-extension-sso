@@ -2,6 +2,9 @@ package com.itau.redhat.sso.util;
 
 import java.io.StringWriter;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
@@ -10,6 +13,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.util.encoders.Hex;
 
 public class Util {
 
@@ -50,6 +54,17 @@ public class Util {
 			return "";
 		}
 
+	}
+	
+	public static String getHashMD5(String val) throws NoSuchAlgorithmException {
+		MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+		byte[] array = messageDigest.digest(val.getBytes());
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < array.length; ++i) {
+          sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+       }
+        return sb.toString();
+		
 	}
 
 }
