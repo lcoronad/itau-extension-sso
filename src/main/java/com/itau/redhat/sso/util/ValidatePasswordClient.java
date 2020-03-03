@@ -37,19 +37,27 @@ public class ValidatePasswordClient {
 	private static MessageKeyType messageKey = new MessageKeyType();
 	private static MessageInfoType messageInfo = new MessageInfoType();
 	private static CustIdType custId = new CustIdType();
+	private static String urlDoValidatePassword = System.getenv("SSO_URL_VALIDATE_PASSWORD");
+	private static String urlCustomerLogin = System.getenv("SSO_URL_CUSTOMER_LOGIN");
+	private static String originatorName = System.getenv("SSO_ORIGINATOR_NAME");
+	private static String originatorType = System.getenv("SSO_ORIGINATOR_TYPE");
 
-	private static Logger LOG = Logger.getLogger(ValidatePasswordClient.class);
+	private static Logger logger = Logger.getLogger(ValidatePasswordClient.class);
+	
+	private ValidatePasswordClient() {
+		
+	}
 
 	public static DoValidatePasswordRsType consumeWSValidatePassword(String usuario, String password) {
-		LOG.info("Preparando para consumo de WS. ValidatePasswordClient.consumeWSValidatePassword");
+		logger.info("Preparando para consumo de WS. ValidatePasswordClient.consumeWSValidatePassword");
 		DoValidatePasswordRsType response = new DoValidatePasswordRsType();
 
 		messageKey.setRequestUUID(Util.getUUID());
 
 		messageInfo.setDateTime(Util.getDateTime());
 		messageInfo.setSystemId("");
-		messageInfo.setOriginatorName(Constant.ORIGINATOR_NAME);
-		messageInfo.setOriginatorType(Constant.ORIGINATOR_TYPE);
+		messageInfo.setOriginatorName(originatorName);
+		messageInfo.setOriginatorType(Long.valueOf(originatorType));
 		messageInfo.setTerminalId(Util.getIpAdrress());
 		messageInfo.setSystemId("");
 		messageHeader.setMessageKey(messageKey);
@@ -64,7 +72,7 @@ public class ValidatePasswordClient {
 		request.setPswd(password);
 
 		try {
-			LOG.info("Consumiendo WS OSB ValidatePassword Version de prueba 1.0, request: "
+			logger.info("Consumiendo WS OSB ValidatePassword Version de prueba 1.0, request: "
 					+ Util.convertDtoToXmlString(request));
 
 			Envelope env = new Envelope();
@@ -72,13 +80,13 @@ public class ValidatePasswordClient {
 			Body body = new Body();
 			body.setDoValidatePasswordRqType(request);
 			env.setBody(body);
-			String xmlT = ClientHTTP.consumeService(Util.convertDtoToXmlString(env),"http://10.186.11.91:24200/services/security/ValidatePassword");
-			LOG.info("Response XML Data: " + xmlT);
+			String xmlT = ClientHTTP.consumeService(Util.convertDtoToXmlString(env),urlDoValidatePassword);
+			logger.info("Response XML Data: " + xmlT);
 			EnvelopeRS envRs = JAXB.unmarshal(new ByteArrayInputStream(xmlT.getBytes(StandardCharsets.UTF_8)),
 					EnvelopeRS.class);
 			response = envRs.getBody().getDoValidatePasswordRsType();
 		} catch (Exception e) {
-			LOG.error("Error consumiendo Web Service ValidatePassword 1.0: ", e);
+			logger.error("Error consumiendo Web Service ValidatePassword 1.0: ", e);
 		}
 		return response;
 	}
@@ -95,8 +103,8 @@ public class ValidatePasswordClient {
 		messageKey.setRequestUUID(Util.getUUID());
 		messageInfo.setDateTime(Util.getDateTime());
 		messageInfo.setSystemId("");
-		messageInfo.setOriginatorName(Constant.ORIGINATOR_NAME);
-		messageInfo.setOriginatorType(Constant.ORIGINATOR_TYPE);
+		messageInfo.setOriginatorName(originatorName);
+		messageInfo.setOriginatorType(Long.valueOf(originatorType));
 		messageInfo.setTerminalId(Util.getIpAdrress());
 		messageHeader.setMessageKey(messageKey);
 		messageHeader.setMessageInfo(messageInfo);
@@ -107,15 +115,15 @@ public class ValidatePasswordClient {
 		body.setGetCustomerLoginRq(request);
 		env.setBody(body);
 		env.setHeaders("");
-		System.out.println(Util.convertDtoToXmlString(env));
-		String xml = ClientHTTP.consumeService(Util.convertDtoToXmlString(env),"http://10.186.11.91:24200/services/security/CustomerLogin");
+		logger.info("URL: "+ urlCustomerLogin);
+		String xml = ClientHTTP.consumeService(Util.convertDtoToXmlString(env),urlCustomerLogin);
 		JAXBContext context = JAXBContext.newInstance(EnvelopeRCL.class);
 		Unmarshaller unmarshaller = context.createUnmarshaller();
 		unmarshaller.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
-//		EnvelopeRCL envRes = JAXB.unmarshal(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),EnvelopeRCL.class);
+
 		EnvelopeRCL envRes =(EnvelopeRCL) unmarshaller.unmarshal(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-		System.out.println(envRes.getBody().getGetCustomerLoginRs().getHeaderResponse().getStatus().getStatusCode());
+		logger.info("Termino de consumir el servicio");
 		return envRes.getBody().getGetCustomerLoginRs();
-	};
+	}
 
 }

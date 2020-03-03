@@ -11,6 +11,8 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 
+import com.itau.redhat.sso.util.Constant;
+
 public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 	protected KeycloakSession session;
 	protected RealmModel realm;
@@ -40,22 +42,22 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 
 	@Override
 	public String getFirstAttribute(String name) {
-		if (name.equals("type_id")) {
+		if (name.equals(Constant.TYPE_ID)) {
 			return this.getTypeId();
-		} else if (name.equals("num_id")) {
+		} else if (name.equals(Constant.NUM_ID)) {
 			return this.getNumId();
 		}
 
-		System.out.println("Entro a getFirstAttribute " + name);
+
 
 		return null;
 	}
 
 	@Override
 	public void setSingleAttribute(String name, String value) {
-		if (name.equals("type_id")) {
+		if (name.equals(Constant.TYPE_ID)) {
 			this.setTypeId(value);
-		} else if (name.equals("num_id")) {
+		} else if (name.equals(Constant.NUM_ID)) {
 			this.setNumId(value);
 		} else {
 			getFederatedStorage().setSingleAttribute(realm, this.getId(), name, value);
@@ -67,15 +69,11 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 	public List<String> getAttribute(String name) {
 		List<String> retorno = new ArrayList<String>();
 
-		if (name.equals("type_id")) {
+		if (name.equals(Constant.TYPE_ID)) {
 			retorno.add(getTypeId());
-		} else if (name.equals("num_id")) {
+		} else if (name.equals(Constant.NUM_ID)) {
 			retorno.add(getNumId());
-		} else {
-			
 		}
-
-		System.out.println("Entro a getAttribute " + name);
 
 		return retorno;
 	}
@@ -84,16 +82,14 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 	public Map<String, List<String>> getAttributes() {
 		Map<String, List<String>> atributos = new HashMap<String, List<String>>();
 
-		List<String> typeId = new ArrayList<String>();
-		List<String> numId = new ArrayList<String>();
+		List<String> typeId = new ArrayList<>();
+		List<String> numId = new ArrayList<>();
 
 		typeId.add(this.getTypeId());
 		numId.add(this.getNumId());
 
-		atributos.put("num_id", numId);
-		atributos.put("type_id", typeId);
-
-		System.out.println("Entro getAttributes");
+		atributos.put(Constant.NUM_ID, numId);
+		atributos.put(Constant.TYPE_ID, typeId);
 
 		return atributos;
 	}

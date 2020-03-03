@@ -72,6 +72,7 @@ public class ItauBaseDatosUserStorageProvider
 	 */
 	public UserModel getUserByUsername(String username, RealmModel realm) {
 		LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Usuario: " + username);
+
 		UserModel adapter = loadedUsers.get(username);
 		if (adapter == null) {
 
@@ -79,7 +80,7 @@ public class ItauBaseDatosUserStorageProvider
 				String userMD5 = Util.getHashMD5(username.toUpperCase());
 				GetCustomerLoginRs getCustomerLoginRs = ValidatePasswordClient.consumeWScustomerLogin(userMD5);
 				LOG.info("Valores encontrados statuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode());
-				LOG.info("Valores encontrados serverstatuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode().toString());
+				LOG.info("Valores encontrados serverstatuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode() );
 				if (!(Constant.STATUS_CODE.equals(String.valueOf(getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode()))
 						&& Constant.SERVER_STATUS_CODE_LOGIN
 								.equals(getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode()))) {
@@ -132,9 +133,7 @@ public class ItauBaseDatosUserStorageProvider
 		LOG.info("ItauBaseDatosUserStorageProvider.isValid Password que llego: " + password);
 
 		try {
-//	        String respuesta = CryptChannelTools.validateLogin( SECURITY_CHANNELLOGINPN_IPCRYPTO, SECURITY_CHANNELLOGINPN_PORTCRYPTO, usuario, password );	        
-//	    	System.out.println( "ItauBaseDatosUserStorageProvider.isValid Respuesta de CryptoUtils que llego: " + respuesta );
-//	    	userValid = respuesta.equals( RESPUESTA_OK_CRYPTOUTILS );
+
 			Long statusCode = 0L;
 			String serverStatusCode = "";
 			String serverSeverity = "";
@@ -155,16 +154,14 @@ public class ItauBaseDatosUserStorageProvider
 			}
 			try {
 				LOG.info("userValid: " + userValid);
-				// LOG.info("Obteniendo Datos del Usuario");
-				// setCustomerData(response);
-				// createAdapter(realm, usuario);
+
 			} catch (Exception e) {
 				LOG.error("Error obteniendo datos del usuario");
 			}
 		} catch (Exception ex) {
 			LOG.error("ItauBaseDatosUserStorageProvider.isValid Error obteniendo respuesta del servicio con error: "
 					+ ex.getMessage());
-			ex.printStackTrace();
+	
 		}
 
 		return userValid;

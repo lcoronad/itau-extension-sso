@@ -2,7 +2,6 @@ package com.itau.redhat.sso.util;
 
 import java.io.StringWriter;
 import java.net.InetAddress;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.GregorianCalendar;
@@ -13,7 +12,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.util.encoders.Hex;
 
 public class Util {
 
