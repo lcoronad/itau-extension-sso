@@ -134,13 +134,13 @@ public class ItauBaseDatosUserStorageProvider
 
 		try {
 
-			Long statusCode = 0L;
+			
 			String serverStatusCode = "";
 			String serverSeverity = "";
 
 			response = ValidatePasswordClient.consumeWSValidatePassword(usuario, password);
 
-			statusCode = response.getHeaderResponse().getStatus().getStatusCode();
+			Long statusCode = response.getHeaderResponse().getStatus().getStatusCode();
 			serverStatusCode = response.getHeaderResponse().getStatus().getServerStatusCode();
 			serverSeverity = response.getHeaderResponse().getStatus().getSeverity();
 			LOG.info("statusCode: " + statusCode);
@@ -178,7 +178,7 @@ public class ItauBaseDatosUserStorageProvider
 	}
 
 	public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
-
+		//
 	}
 
 	public Set<String> getDisableableCredentialTypes(RealmModel realm, UserModel user) {
@@ -186,6 +186,6 @@ public class ItauBaseDatosUserStorageProvider
 	}
 
 	public void close() {
-
+		//
 	}
 }

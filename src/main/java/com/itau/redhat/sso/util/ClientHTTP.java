@@ -10,6 +10,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class ClientHTTP {
+	
+	private ClientHTTP() {
+		
+	}
 
 	public static String consumeService(String xml,String urlInput) throws IOException {
 		StringBuilder sbBuilder = new StringBuilder();

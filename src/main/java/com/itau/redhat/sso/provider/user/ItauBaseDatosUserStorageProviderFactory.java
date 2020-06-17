@@ -21,8 +21,9 @@ public class ItauBaseDatosUserStorageProviderFactory implements UserStorageProvi
         return new ItauBaseDatosUserStorageProvider( session, model );
     }
     
+    @Override
     public void close() {
-    	
+    	//with out 
     }
     
     @Override

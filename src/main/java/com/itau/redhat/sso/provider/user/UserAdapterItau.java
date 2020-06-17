@@ -14,10 +14,10 @@ import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 import com.itau.redhat.sso.util.Constant;
 
 public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
-	protected KeycloakSession session;
-	protected RealmModel realm;
-	protected ComponentModel storageProviderModel;
-	protected StorageId storageId;
+	protected KeycloakSession sessionAdapter;
+	protected RealmModel realmAdapter;
+	protected ComponentModel storageProviderModeladapter;
+	protected StorageId storageIdAdapter;
 	protected String userName;
 	protected String typeId;
 	protected String numId;
@@ -25,9 +25,9 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 
 	public UserAdapterItau(KeycloakSession session, RealmModel realm, ComponentModel storageProviderModel) {
 		super(session, realm, storageProviderModel);
-		this.session = session;
-		this.realm = realm;
-		this.storageProviderModel = storageProviderModel;
+		this.sessionAdapter = session;
+		this.realmAdapter = realm;
+		this.storageProviderModeladapter = storageProviderModel;
 	}
 
 	@Override
@@ -48,8 +48,6 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 			return this.getNumId();
 		}
 
-
-
 		return null;
 	}
 
@@ -60,14 +58,14 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 		} else if (name.equals(Constant.NUM_ID)) {
 			this.setNumId(value);
 		} else {
-			getFederatedStorage().setSingleAttribute(realm, this.getId(), name, value);
+			getFederatedStorage().setSingleAttribute(realmAdapter, this.getId(), name, value);
 		}
 
 	}
 
 	@Override
 	public List<String> getAttribute(String name) {
-		List<String> retorno = new ArrayList<String>();
+		List<String> retorno = new ArrayList<>();
 
 		if (name.equals(Constant.TYPE_ID)) {
 			retorno.add(getTypeId());
@@ -80,7 +78,7 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 
 	@Override
 	public Map<String, List<String>> getAttributes() {
-		Map<String, List<String>> atributos = new HashMap<String, List<String>>();
+		Map<String, List<String>> atributos = new HashMap<>();
 
 		List<String> typeId = new ArrayList<>();
 		List<String> numId = new ArrayList<>();
@@ -108,5 +106,16 @@ public class UserAdapterItau extends AbstractUserAdapterFederatedStorage {
 
 	public void setNumId(String numId) {
 		this.numId = numId;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		/* ... */
+		return 0;
 	}
 }
