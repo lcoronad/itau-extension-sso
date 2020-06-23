@@ -77,7 +77,7 @@ public class ItauBaseDatosUserStorageProvider
 		if (adapter == null) {
 
 			try {
-				String userMD5 = Util.getHashMD5(username.toUpperCase());
+				String userMD5 = Util.getHashMD5(username);
 				GetCustomerLoginRs getCustomerLoginRs = ValidatePasswordClient.consumeWScustomerLogin(userMD5);
 				LOG.info("Valores encontrados statuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode());
 				LOG.info("Valores encontrados serverstatuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode() );
