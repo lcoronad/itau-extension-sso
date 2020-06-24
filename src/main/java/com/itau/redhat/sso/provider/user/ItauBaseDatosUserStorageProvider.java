@@ -23,7 +23,6 @@ import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 
 import com.itau.redhat.sso.util.Constant;
-import com.itau.redhat.sso.util.Util;
 import com.itau.redhat.sso.util.ValidatePasswordClient;
 
 import co.com.itau.services.security.validatepassword.v1.schemas.DoValidatePasswordRsType;
@@ -74,29 +73,32 @@ public class ItauBaseDatosUserStorageProvider
 		LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Usuario: " + username);
 
 		UserModel adapter = loadedUsers.get(username);
+		
 		if (adapter == null) {
 
 			try {
-				String userMD5 = Util.getHashMD5(username);
-				GetCustomerLoginRs getCustomerLoginRs = ValidatePasswordClient.consumeWScustomerLogin(userMD5);
-				LOG.info("Valores encontrados statuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode());
-				LOG.info("Valores encontrados serverstatuscode: " + getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode() );
-				if (!(Constant.STATUS_CODE.equals(String.valueOf(getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode()))
-						&& Constant.SERVER_STATUS_CODE_LOGIN
-								.equals(getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode()))) {
+				GetCustomerLoginRs getCustomerLoginRs = ValidatePasswordClient.consumeWScustomerLogin(username);
+				
+				LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Status code: " + getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode());
+				LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Server status code: " + getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode() );
+				
+				if( !(Constant.STATUS_CODE.equals(String.valueOf(getCustomerLoginRs.getHeaderResponse().getStatus().getStatusCode())) && 
+					Constant.SERVER_STATUS_CODE_LOGIN.equals(getCustomerLoginRs.getHeaderResponse().getStatus().getServerStatusCode()))) {
 					return adapter;
 				}
-
+				
 				adapter = new UserAdapterItau(session, realm, model);
 				adapter.setUsername(getCustomerLoginRs.getCustLoginId());
 				adapter.setSingleAttribute("type_id", getCustomerLoginRs.getCustType());
 				adapter.setSingleAttribute("num_id", getCustomerLoginRs.getCustPermId());
 				
 				loadedUsers.put(username, adapter);
-				LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Encontro adapter");
+				
+				LOG.info("ItauBaseDatosUserStorageProvider.getUserByUsername Usuario encontrado en el OSB");
 
-			} catch (Exception e) {
-				LOG.error("Error el MD5", e);
+			}
+			catch ( Exception e ) {
+				LOG.error( "Error buscando el usuario en OSB", e);
 			}
 		}
 
@@ -117,51 +119,43 @@ public class ItauBaseDatosUserStorageProvider
 	 */
 	public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
 		boolean userValid = false;
+		
 		DoValidatePasswordRsType response = new DoValidatePasswordRsType();
+		
 		if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) {
 			return false;
 		}
-
+		
 		UserCredentialModel cred = (UserCredentialModel) input;
-
+		
 		String usuario = user.getUsername();
 		String password = cred.getValue();
-
 		
-
-		LOG.info("ItauBaseDatosUserStorageProvider.isValid Usuario que llego: " + usuario);
-		LOG.info("ItauBaseDatosUserStorageProvider.isValid Password que llego: " + password);
-
 		try {
-
-			
 			String serverStatusCode = "";
 			String serverSeverity = "";
-
+			
 			response = ValidatePasswordClient.consumeWSValidatePassword(usuario, password);
-
+			
 			Long statusCode = response.getHeaderResponse().getStatus().getStatusCode();
 			serverStatusCode = response.getHeaderResponse().getStatus().getServerStatusCode();
 			serverSeverity = response.getHeaderResponse().getStatus().getSeverity();
-			LOG.info("statusCode: " + statusCode);
-			LOG.info("serverStatusCode: " + serverStatusCode);
-			LOG.info("serverSeverity: " + serverSeverity);
-			if (Constant.STATUS_CODE.equals(statusCode.toString())
-					&& Constant.SERVER_STATUS_CODE.equals(serverStatusCode)
-					&& Constant.SERVER_SEVERITY.equals(serverSeverity)) {
+			
+			LOG.info("ItauBaseDatosUserStorageProvider.isValid status Code: " + statusCode);
+			LOG.info("ItauBaseDatosUserStorageProvider.isValid server Status Code: " + serverStatusCode);
+			LOG.info("ItauBaseDatosUserStorageProvider.isValid server Severity: " + serverSeverity);
+			
+			if( Constant.STATUS_CODE.equals(statusCode.toString()) && 
+				Constant.SERVER_STATUS_CODE.equals(serverStatusCode) && 
+				Constant.SERVER_SEVERITY.equals(serverSeverity)) {
+				
 				userValid = true;
-
 			}
-			try {
-				LOG.info("userValid: " + userValid);
-
-			} catch (Exception e) {
-				LOG.error("Error obteniendo datos del usuario");
-			}
-		} catch (Exception ex) {
-			LOG.error("ItauBaseDatosUserStorageProvider.isValid Error obteniendo respuesta del servicio con error: "
-					+ ex.getMessage());
-	
+			
+			LOG.info("ItauBaseDatosUserStorageProvider.isValid clave valida: " + userValid + " para el usuario: " + usuario );
+		}
+		catch( Exception ex ) {
+			LOG.error( "ItauBaseDatosUserStorageProvider.isValid Error obteniendo respuesta del servicio con error: " + ex.getMessage( ) );
 		}
 
 		return userValid;
